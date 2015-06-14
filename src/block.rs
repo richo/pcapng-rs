@@ -1,3 +1,4 @@
+use nom::{IResult};
 use nom::{le_u32};
 
 /// Public representation of a parsed block
