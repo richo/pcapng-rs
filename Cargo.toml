@@ -4,4 +4,4 @@ version = "0.0.0"
 authors = ["Richo Healey <richo@psych0tik.net>"]
 
 [dependencies]
-nom = "~0.3.0"
+nom = "*"
