@@ -1,12 +1,5 @@
-use nom::{Consumer,ConsumerState,MemProducer,IResult,Needed};
 use nom::{le_u32};
 
-enum BlockState {
-    BlockType,
-    BlockLength,
-    BlockBody,
-    CheckLength,
-}
 /// Public representation of a parsed block
 struct Block<'a> {
     //  0                   1                   2                   3
