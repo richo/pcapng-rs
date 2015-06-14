@@ -37,6 +37,10 @@ named!(block<&[u8],Block>,
            )
       );
 
+named!(blocks< &[u8],Vec<Block> >,
+       many1!(block)
+       );
+
 #[test]
 fn test_parse_block() {
     let input = b"\n\r\r\n\x1c\x00\x00\x00M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x1c\x00\x00\x00";
@@ -48,6 +52,29 @@ fn test_parse_block() {
             assert_eq!(block_length, 28);
             assert_eq!(body, b"M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff");
             assert_eq!(check_length, 28);
+        },
+        _ => {
+            assert_eq!(1, 2);
+        },
+    }
+}
+
+#[test]
+fn test_parse_blocks() {
+    let input = b"\n\r\r\n\x1c\x00\x00\x00M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x1c\x00\x00\x00\
+    \n\r\r\n\x1c\x00\x00\x00M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x1c\x00\x00\x00";
+    match blocks(input) {
+        IResult::Done(left, blocks) => {
+            assert_eq!(blocks.len(), 2);
+            for i in blocks {
+                let Block { ty, block_length, body, check_length } = i;
+                // Ignored because we do not currently parse the whole block
+                assert_eq!(left, b"");
+                assert_eq!(ty, 0x0A0D0D0A);
+                assert_eq!(block_length, 28);
+                assert_eq!(body, b"M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff");
+                assert_eq!(check_length, 28);
+            }
         },
         _ => {
             assert_eq!(1, 2);
