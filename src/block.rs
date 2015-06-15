@@ -31,7 +31,7 @@ pub struct RawBlock<'a> {
 impl<'a> RawBlock<'a> {
     fn parse(self) -> Block {
         match self.ty {
-            0x0A0D0D0A => Block::SectionHeader(blocks::section_header::parse(self)),
+            blocks::section_header::TY => Block::SectionHeader(blocks::section_header::parse(self)),
             _ => panic!("Unknown block type {:x}", self.ty),
         }
     }

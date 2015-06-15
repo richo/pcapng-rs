@@ -2,6 +2,8 @@ use nom::{IResult};
 use nom::{le_u64,le_u32,le_u16};
 use block::{block,Block,RawBlock};
 
+pub const TY: u32 = 0x0A0D0D0A;
+
 //    0                   1                   2                   3
 //    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 //    +---------------------------------------------------------------+
@@ -43,7 +45,7 @@ named!(section_header_body<&[u8],SectionHeader>,
 
                assert_eq!(magic, 0x1A2B3C4D);
                SectionHeader {
-                   ty: 0x0A0D0D0A,
+                   ty: TY,
                    block_length: 0,
                    magic: magic,
                    major_version: major_version,
@@ -61,7 +63,6 @@ pub enum SectionLength {
     Unspecified,
 }
 
-// Dummy struct for now
 pub struct SectionHeader {
     ty: u32,
     block_length: u32,
