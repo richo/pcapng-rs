@@ -5,9 +5,9 @@ use blocks;
 
 #[derive(Debug)]
 pub enum Block<'a> {
-    SectionHeader(blocks::SectionHeader),
+    SectionHeader(blocks::SectionHeader<'a>),
     EnhancedPacket(blocks::EnhancedPacket<'a>),
-    InterfaceDescription(blocks::InterfaceDescription),
+    InterfaceDescription(blocks::InterfaceDescription<'a>),
 }
 
 /// Public representation of a parsed block

@@ -1,7 +1,7 @@
 use nom::{IResult};
 use nom::{le_u64,le_u32,le_u16};
 use block::{parse_block,Block,RawBlock};
-use options::Options;
+use options::{parse_options,Options};
 
 pub const TY: u32 = 0x00000006;
 
@@ -47,7 +47,8 @@ named!(enhanced_packet_body<&[u8],EnhancedPacket>,
            // snapshot length (defined in Figure 9). The value of this field does not include the
            // padding bytes added at the end of the Packet Data field to align the Packet Data
            // Field to a 32-bit boundary
-           data: take!(captured_len as usize) ,
+           data: take!(captured_len as usize) ~
+           options: parse_options? ,
 
            ||{
                EnhancedPacket {
@@ -59,7 +60,7 @@ named!(enhanced_packet_body<&[u8],EnhancedPacket>,
                    captured_len: captured_len,
                    packet_len: packet_len,
                    data: data,
-                   options: None,
+                   options: options,
                    check_length: 0,
                }
            }
@@ -89,6 +90,6 @@ pub struct EnhancedPacket<'a> {
     captured_len: u32,
     packet_len: u32,
     data: &'a [u8],
-    options: Option<Options>,
+    options: Option<Options<'a>>,
     check_length: u32,
 }

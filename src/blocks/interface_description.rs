@@ -1,7 +1,7 @@
 use nom::{IResult};
 use nom::{le_u64,le_u32,le_u16};
 use block::{parse_block,Block,RawBlock};
-use options::Options;
+use options::{parse_options,Options};
 
 pub const TY: u32 = 0x00000001;
 
@@ -27,7 +27,8 @@ named!(interface_description_body<&[u8],InterfaceDescription>,
        chain!(
            link_type: le_u16 ~
            reserved: le_u16 ~
-           snap_len: le_u32 ,
+           snap_len: le_u32 ~
+           options: parse_options? ,
            ||{
                InterfaceDescription {
                    ty: TY,
@@ -35,7 +36,7 @@ named!(interface_description_body<&[u8],InterfaceDescription>,
                    link_type: link_type,
                    reserved: reserved,
                    snap_len: snap_len,
-                   options: None, // FIXME(richo)
+                   options: options,
                    check_length: 0,
                }
 
@@ -44,13 +45,13 @@ named!(interface_description_body<&[u8],InterfaceDescription>,
        );
 
 #[derive(Debug)]
-pub struct InterfaceDescription {
+pub struct InterfaceDescription<'a> {
     ty: u32,
     block_length: u32,
     link_type: u16,
     reserved: u16,
     snap_len: u32,
-    options: Option<Options>,
+    options: Option<Options<'a>>,
     check_length: u32,
 }
 

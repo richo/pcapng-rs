@@ -1,7 +1,7 @@
 use nom::{IResult};
 use nom::{le_u64,le_u32,le_u16};
 use block::{parse_block,Block,RawBlock};
-use options::Options;
+use options::{parse_options,Options};
 
 pub const TY: u32 = 0x0A0D0D0A;
 
@@ -32,7 +32,9 @@ named!(section_header_body<&[u8],SectionHeader>,
            magic: le_u32 ~
            major_version: le_u16 ~
            minor_version: le_u16 ~
-           _section_length: le_u64 ,
+           _section_length: le_u64 ~
+           options: parse_options?,
+
            // Can we get the blocks by virtue of knowing how much data we have left here?
            ||{
                let section_length = if _section_length == 0xFFFFFFFFFFFFFFFF {
@@ -49,7 +51,7 @@ named!(section_header_body<&[u8],SectionHeader>,
                    major_version: major_version,
                    minor_version: minor_version,
                    section_length: section_length,
-                   options: None, // FIXME(richo)
+                   options: options,
                    check_length: 0,
            } }
            )
@@ -62,14 +64,14 @@ pub enum SectionLength {
 }
 
 #[derive(Debug)]
-pub struct SectionHeader {
+pub struct SectionHeader<'a> {
     ty: u32,
     block_length: u32,
     magic: u32,
     major_version: u16,
     minor_version: u16,
     section_length: SectionLength,
-    options: Option<Options>,
+    options: Option<Options<'a>>,
     check_length: u32,
 }
 
@@ -102,6 +104,7 @@ fn test_parse_section_header() {
             assert_eq!(section_header.block_length, 28);
             assert_eq!(section_header.magic, 0x1A2B3C4D);
             assert_eq!(section_header.section_length, SectionLength::Unspecified);
+            assert!(section_header.options.is_none());
             assert_eq!(section_header.check_length, 28);
         },
         _ => {
