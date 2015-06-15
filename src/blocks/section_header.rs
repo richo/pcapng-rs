@@ -1,6 +1,6 @@
 use nom::{IResult};
 use nom::{le_u64,le_u32,le_u16};
-use block::{block,Block,RawBlock};
+use block::{parse_block,Block,RawBlock};
 use options::Options;
 
 pub const TY: u32 = 0x0A0D0D0A;
@@ -91,7 +91,7 @@ pub fn parse(blk: RawBlock) -> SectionHeader {
 #[test]
 fn test_parse_section_header() {
     let input = b"\n\r\r\n\x1c\x00\x00\x00M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x1c\x00\x00\x00";
-    match block(input) {
+    match parse_block(input) {
         IResult::Done(left, block) => {
             let section_header = parse(block);
 

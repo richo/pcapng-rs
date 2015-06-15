@@ -41,7 +41,7 @@ impl<'a> RawBlock<'a> {
 }
 
 
-named!(pub block<&[u8],RawBlock>,
+named!(pub parse_block< &[u8],RawBlock >,
        chain!(
            ty: le_u32 ~
            block_length: le_u32 ~
@@ -57,14 +57,14 @@ named!(pub block<&[u8],RawBlock>,
            )
       );
 
-named!(blocks< &[u8],Vec<RawBlock> >,
-       many1!(block)
+named!(pub parse_blocks< &[u8],Vec<RawBlock> >,
+       many1!(parse_block)
        );
 
 #[test]
 fn test_parse_block() {
     let input = b"\n\r\r\n\x1c\x00\x00\x00M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x1c\x00\x00\x00";
-    match block(input) {
+    match parse_block(input) {
         IResult::Done(left, RawBlock { ty, block_length, body, check_length }) => {
             // Ignored because we do not currently parse the whole block
             assert_eq!(left, b"");
@@ -83,7 +83,7 @@ fn test_parse_block() {
 fn test_parse_blocks() {
     let input = b"\n\r\r\n\x1c\x00\x00\x00M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x1c\x00\x00\x00\
     \n\r\r\n\x1c\x00\x00\x00M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x1c\x00\x00\x00";
-    match blocks(input) {
+    match parse_blocks(input) {
         IResult::Done(left, blocks) => {
             assert_eq!(blocks.len(), 2);
             for i in blocks {

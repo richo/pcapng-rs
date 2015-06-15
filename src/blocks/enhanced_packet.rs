@@ -1,6 +1,6 @@
 use nom::{IResult};
 use nom::{le_u64,le_u32,le_u16};
-use block::{block,Block,RawBlock};
+use block::{parse_block,Block,RawBlock};
 use options::Options;
 
 pub const TY: u32 = 0x00000006;

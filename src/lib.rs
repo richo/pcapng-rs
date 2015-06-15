@@ -1,6 +1,6 @@
 #[macro_use]
 extern crate nom;
 
-mod block;
+pub mod block;
 mod blocks;
 mod options;
