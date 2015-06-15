@@ -28,7 +28,7 @@ pub struct Opt<'a> {
 // |   Option Code == opt_endofopt  |  Option Length == 0          |
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#[inline(Always)]
+#[inline(always)]
 // Debug helper, since at various points being able to dump how much it's planning to read has been
 // really handy
 fn expand(i: u16) -> usize {
