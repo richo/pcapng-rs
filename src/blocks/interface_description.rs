@@ -43,6 +43,7 @@ named!(interface_description_body<&[u8],InterfaceDescription>,
            )
        );
 
+#[derive(Debug)]
 pub struct InterfaceDescription {
     ty: u32,
     block_length: u32,

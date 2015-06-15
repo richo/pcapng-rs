@@ -61,6 +61,7 @@ pub enum SectionLength {
     Unspecified,
 }
 
+#[derive(Debug)]
 pub struct SectionHeader {
     ty: u32,
     block_length: u32,

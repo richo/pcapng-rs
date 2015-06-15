@@ -79,6 +79,7 @@ pub fn parse(blk: RawBlock) -> EnhancedPacket {
     }
 }
 
+#[derive(Debug)]
 pub struct EnhancedPacket<'a> {
     ty: u32,
     block_length: u32,
