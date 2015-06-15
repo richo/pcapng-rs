@@ -29,12 +29,11 @@ fn main() {
 
     println!("Seeded the buffer with {}", buf.len());
 
-    match pcapng::block::parse_block(&buf[..]) {
-        IResult::Done(_, block) => {
-            println!("block: {:?}", block)
-            // for i in blocks {
-            //     println!("block: {:?}", i);
-            // }
+    match pcapng::block::parse_blocks(&buf[..]) {
+        IResult::Done(_, blocks) => {
+            for i in blocks {
+                println!("block: {:?}", i.parse());
+            }
         }
         IResult::Error(e)      => panic!("Error: {:?}", e),
         IResult::Incomplete(i) => panic!("Incomplete: {:?}", i),

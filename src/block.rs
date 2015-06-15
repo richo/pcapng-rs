@@ -32,7 +32,7 @@ pub struct RawBlock<'a> {
 }
 
 impl<'a> RawBlock<'a> {
-    fn parse(self) -> Block<'a> {
+    pub fn parse(self) -> Block<'a> {
         match self.ty {
             blocks::section_header::TY => Block::SectionHeader(blocks::section_header::parse(self)),
             blocks::enhanced_packet::TY => Block::EnhancedPacket(blocks::enhanced_packet::parse(self)),
