@@ -14,13 +14,10 @@ struct DebugConsumer<'a> {
 
 impl<'a> Consumer for DebugConsumer<'a> {
     fn consume(&mut self, input: &[u8]) -> ConsumerState {
-        println!("Consum called");
-        // if let IResult::Done(_, blocks) =  pcapng::block::parse_blocks(input) {
         match pcapng::block::parse_blocks(input) {
             IResult::Done(_, blocks) => {
                 for i in blocks {
-                    println!("consuming: {:?}", i);
-                    // self.blocks.push(i);
+                    self.blocks.push(i);
                 }
             }
             IResult::Error(e)      => panic!("Error: {:?}", e),

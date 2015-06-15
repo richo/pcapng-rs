@@ -28,12 +28,12 @@ pub struct Opt<'a> {
 // |   Option Code == opt_endofopt  |  Option Length == 0          |
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+#[inline(Always)]
+// Debug helper, since at various points being able to dump how much it's planning to read has been
+// really handy
 fn expand(i: u16) -> usize {
-    println!("Reading {} bytes", i);
     i as usize
 }
-
-
 
 named!(option<&[u8],Opt>,
        chain!(

@@ -27,12 +27,10 @@ fn main() {
     let mut buf: Vec<u8> = Vec::new();
     let read = fh.read_to_end(&mut buf);
 
-    println!("Seeded the buffer with {}", buf.len());
-
     match pcapng::block::parse_blocks(&buf[..]) {
         IResult::Done(_, blocks) => {
             for i in blocks {
-                println!("block: {:?}", i.parse());
+                println!("{:?}", i.parse());
             }
         }
         IResult::Error(e)      => panic!("Error: {:?}", e),

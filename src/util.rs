@@ -6,7 +6,6 @@ pub fn pad_to_32bits(length: u32) -> usize {
         0
     } else {
         let delta = 4 - padding;
-        println!("Padding to {}", delta);
         delta as usize
     }
 }
