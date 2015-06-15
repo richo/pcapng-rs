@@ -2,6 +2,7 @@ use nom::{IResult};
 use nom::{le_u32};
 
 use blocks;
+use util;
 
 #[derive(Debug)]
 pub enum Block<'a> {
@@ -48,6 +49,7 @@ named!(pub parse_block< &[u8],RawBlock >,
            ty: le_u32 ~
            block_length: le_u32 ~
            body: take!((block_length - 12) as usize) ~
+           take!(util::pad_to_32bits(block_length - 12)) ~
            check_length: le_u32 ,
 
            ||{ RawBlock {
@@ -100,6 +102,25 @@ fn test_parse_blocks() {
         },
         _ => {
             assert_eq!(1, 2);
+        },
+    }
+}
+
+#[test]
+fn test_parse_weird_length_block() {
+    let input = b"\n\r\r\n\x1b\x00\x00\x00<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x00\x1b\x00\x00\x00";
+    match parse_block(input) {
+        IResult::Done(left, RawBlock { ty, block_length, body, check_length }) => {
+            // Ignored because we do not currently parse the whole block
+            assert_eq!(left, b"");
+            assert_eq!(ty, 0x0A0D0D0A);
+            assert_eq!(27, block_length);
+            assert_eq!(body.len() + 12, block_length as usize);
+            assert_eq!(body, b"<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff");
+            assert_eq!(body.len() + 12, check_length as usize);
+        },
+        _ => {
+            unreachable!("Couldn't parse the block");
         },
     }
 }
