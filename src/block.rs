@@ -3,8 +3,9 @@ use nom::{le_u32};
 
 use blocks;
 
-pub enum Block {
+pub enum Block<'a> {
     SectionHeader(blocks::SectionHeader),
+    EnhancedPacket(blocks::EnhancedPacket<'a>),
     // InterfaceDescription(blocks::InterfaceDescription),
 }
 
@@ -29,9 +30,10 @@ pub struct RawBlock<'a> {
 }
 
 impl<'a> RawBlock<'a> {
-    fn parse(self) -> Block {
+    fn parse(self) -> Block<'a> {
         match self.ty {
             blocks::section_header::TY => Block::SectionHeader(blocks::section_header::parse(self)),
+            blocks::enhanced_packet::TY => Block::EnhancedPacket(blocks::enhanced_packet::parse(self)),
             _ => panic!("Unknown block type {:x}", self.ty),
         }
     }
