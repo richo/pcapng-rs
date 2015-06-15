@@ -6,7 +6,7 @@ use blocks;
 pub enum Block<'a> {
     SectionHeader(blocks::SectionHeader),
     EnhancedPacket(blocks::EnhancedPacket<'a>),
-    // InterfaceDescription(blocks::InterfaceDescription),
+    InterfaceDescription(blocks::InterfaceDescription),
 }
 
 /// Public representation of a parsed block
@@ -34,6 +34,7 @@ impl<'a> RawBlock<'a> {
         match self.ty {
             blocks::section_header::TY => Block::SectionHeader(blocks::section_header::parse(self)),
             blocks::enhanced_packet::TY => Block::EnhancedPacket(blocks::enhanced_packet::parse(self)),
+            blocks::interface_description::TY => Block::InterfaceDescription(blocks::interface_description::parse(self)),
             _ => panic!("Unknown block type {:x}", self.ty),
         }
     }
