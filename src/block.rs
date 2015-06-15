@@ -3,6 +3,7 @@ use nom::{le_u32};
 
 use blocks;
 
+#[derive(Debug)]
 pub enum Block<'a> {
     SectionHeader(blocks::SectionHeader),
     EnhancedPacket(blocks::EnhancedPacket<'a>),
