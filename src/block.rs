@@ -1,4 +1,3 @@
-use nom::{IResult};
 use nom::{le_u32};
 
 use blocks;
@@ -64,6 +63,9 @@ named!(pub parse_block< &[u8],RawBlock >,
 named!(pub parse_blocks< &[u8],Vec<RawBlock> >,
        many1!(parse_block)
        );
+
+#[cfg(test)]
+use nom::IResult;
 
 #[test]
 fn test_parse_block() {
@@ -133,6 +135,7 @@ fn test_multiple_options() {
                 \x30\x30\x34\x2e\x65\x78\x65\x00\x00\x00\x00\x00\x40\x00\x00\x00";
     match parse_block(input) {
         IResult::Done(left, block) => {
+            assert_eq!(left, b"");
             if let Block::SectionHeader(blk) = block.parse() {
                 if let Some(opts) = blk.options {
                     assert_eq!(opts.options.len(), 3);

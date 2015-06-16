@@ -1,6 +1,6 @@
-use nom::{IResult};
-use nom::{le_u64,le_u32,le_u16};
-use block::{parse_block,Block,RawBlock};
+use nom::IResult;
+use nom::le_u32;
+use block::RawBlock;
 use options::{parse_options,Options};
 
 pub const TY: u32 = 0x00000006;
@@ -69,7 +69,8 @@ named!(enhanced_packet_body<&[u8],EnhancedPacket>,
 
 pub fn parse(blk: RawBlock) -> EnhancedPacket {
     match enhanced_packet_body(blk.body) {
-        IResult::Done(left, mut block) => {
+        // FIXME(richo) actually do something with the leftover bytes
+        IResult::Done(_, mut block) => {
             block.block_length = blk.block_length;
             block.check_length = blk.check_length;
             block

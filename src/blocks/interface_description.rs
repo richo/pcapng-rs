@@ -1,6 +1,6 @@
-use nom::{IResult};
-use nom::{le_u64,le_u32,le_u16};
-use block::{parse_block,Block,RawBlock};
+use nom::IResult;
+use nom::{le_u32,le_u16};
+use block::RawBlock;
 use options::{parse_options,Options};
 
 pub const TY: u32 = 0x00000001;
@@ -57,7 +57,8 @@ pub struct InterfaceDescription<'a> {
 
 pub fn parse(blk: RawBlock) -> InterfaceDescription {
     match interface_description_body(blk.body) {
-        IResult::Done(left, mut block) => {
+        // FIXME(richo) Actually do something with the leftover bytes
+        IResult::Done(_, mut block) => {
             block.block_length = blk.block_length;
             block.check_length = blk.check_length;
             block

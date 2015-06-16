@@ -1,6 +1,6 @@
-use nom::{IResult};
+use nom::IResult;
 use nom::{le_u64,le_u32,le_u16};
-use block::{parse_block,Block,RawBlock};
+use block::RawBlock;
 use options::{parse_options,Options};
 
 pub const TY: u32 = 0x0A0D0D0A;
@@ -80,7 +80,8 @@ pub fn parse(blk: RawBlock) -> SectionHeader {
     // I think that we can do this by invoking an options parser, and using the fact that we're
     // dealing with slices by this point to our advantage
     match section_header_body(blk.body) {
-        IResult::Done(left, mut block) => {
+        // FIXME(richo) actually do smeometing with the leftover bytes
+        IResult::Done(_, mut block) => {
             block.block_length = blk.block_length;
             block.check_length = blk.check_length;
             block
@@ -90,6 +91,9 @@ pub fn parse(blk: RawBlock) -> SectionHeader {
         }
     }
 }
+
+#[cfg(test)]
+use block::parse_block;
 
 #[test]
 fn test_parse_section_header() {
