@@ -1,5 +1,7 @@
 use nom::{IResult};
 use nom::{le_u64,le_u32,le_u16};
+use util;
+
 // FIXME(richo) Flesh this out properly with it's own discrete parser.
 #[derive(Debug)]
 pub struct Options<'a> {
@@ -28,18 +30,12 @@ pub struct Opt<'a> {
 // |   Option Code == opt_endofopt  |  Option Length == 0          |
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#[inline(always)]
-// Debug helper, since at various points being able to dump how much it's planning to read has been
-// really handy
-fn expand(i: u16) -> usize {
-    i as usize
-}
-
 named!(option<&[u8],Opt>,
        chain!(
            code: le_u16 ~
            length: le_u16 ~
-           value: take!(expand(length)) ,
+           value: take!(length as usize) ~
+           take!(util::pad_to_32bits(length as usize)),
            ||{
                Opt {
                    code: code,

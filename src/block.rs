@@ -49,7 +49,7 @@ named!(pub parse_block< &[u8],RawBlock >,
            ty: le_u32 ~
            block_length: le_u32 ~
            body: take!((block_length - 12) as usize) ~
-           take!(util::pad_to_32bits(block_length - 12)) ~
+           take!(util::pad_to_32bits((block_length - 12) as usize)) ~
            check_length: le_u32 ,
 
            ||{ RawBlock {
