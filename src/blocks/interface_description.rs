@@ -51,7 +51,7 @@ pub struct InterfaceDescription<'a> {
     link_type: u16,
     reserved: u16,
     snap_len: u32,
-    options: Option<Options<'a>>,
+    pub options: Option<Options<'a>>,
     check_length: u32,
 }
 

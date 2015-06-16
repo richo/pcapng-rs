@@ -71,7 +71,7 @@ pub struct SectionHeader<'a> {
     major_version: u16,
     minor_version: u16,
     section_length: SectionLength,
-    options: Option<Options<'a>>,
+    pub options: Option<Options<'a>>,
     check_length: u32,
 }
 

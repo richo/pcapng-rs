@@ -90,6 +90,6 @@ pub struct EnhancedPacket<'a> {
     captured_len: u32,
     packet_len: u32,
     data: &'a [u8],
-    options: Option<Options<'a>>,
+    pub options: Option<Options<'a>>,
     check_length: u32,
 }

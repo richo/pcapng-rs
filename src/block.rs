@@ -124,3 +124,42 @@ fn test_parse_weird_length_block() {
         },
     }
 }
+
+#[test]
+fn test_multiple_options() {
+    let input = b"\x0a\x0d\x0d\x0a\x40\x00\x00\x00\x4d\x3c\x2b\x1a\x01\x00\x00\x00\
+                \xff\xff\xff\xff\xff\xff\xff\xff\x03\x00\x0b\x00\x57\x69\x6e\x64\
+                \x6f\x77\x73\x20\x58\x50\x00\x00\x04\x00\x0c\x00\x54\x65\x73\x74\
+                \x30\x30\x34\x2e\x65\x78\x65\x00\x00\x00\x00\x00\x40\x00\x00\x00";
+    match parse_block(input) {
+        IResult::Done(left, block) => {
+            if let Block::SectionHeader(blk) = block.parse() {
+                if let Some(opts) = blk.options {
+                    assert_eq!(opts.options.len(), 3);
+
+                    let o = &opts.options[0];
+                    assert_eq!(o.code, 0x03);
+                    assert_eq!(o.length, 0x0b);
+                    assert_eq!(&o.value[..], b"Windows XP\x00");
+
+                    let o = &opts.options[1];
+                    assert_eq!(o.code, 0x04);
+                    assert_eq!(o.length, 0x0c);
+                    assert_eq!(&o.value[..], b"Test004.exe\x00");
+
+                    let o = &opts.options[2];
+                    assert_eq!(o.code, 0x00);
+                    assert_eq!(o.length, 0x00);
+                    assert_eq!(&o.value[..], b"");
+                } else {
+                    unreachable!();
+                }
+            } else {
+                unreachable!();
+            }
+        },
+        _ => {
+            panic!("Hit a codepath we shouldn't have");
+        },
+    }
+}
