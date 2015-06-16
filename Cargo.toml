@@ -8,4 +8,4 @@ description = "a pcapng parser, implemented in rust"
 license = "MIT"
 
 [dependencies]
-nom = "*"
+nom = "~0.3.6"
