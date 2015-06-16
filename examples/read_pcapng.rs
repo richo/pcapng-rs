@@ -15,12 +15,6 @@ fn main() {
         return;
     }
 
-    // I can't currently get the Producer machinery to work for me, so instead we read into a
-    // gigantor byte array and dump that in
-
-    // This explodes, claiming to be incomplete. I *think* there's potentially an underflow in my
-    // pcap
-
     let mut fh = fs::File::open(&args[1]).unwrap();
     let mut buf: Vec<u8> = Vec::new();
     let _ = fh.read_to_end(&mut buf);
