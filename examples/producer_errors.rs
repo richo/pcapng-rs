@@ -3,14 +3,8 @@ extern crate nom;
 extern crate pcapng;
 
 use std::env;
-use nom::{FileProducer,MemProducer,Producer};
-use nom::{ConsumerState,Consumer};
-use nom::{IResult};
-use pcapng::block::{RawBlock,parse_blocks,parse_block};
-
-struct DebugConsumer<'a> {
-        pub blocks: Vec<RawBlock<'a>>,
-}
+use nom::{FileProducer,Producer};
+use pcapng::block::parse_block;
 
 named!(printer,
        chain!(

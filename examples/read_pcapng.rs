@@ -4,11 +4,9 @@ extern crate pcapng;
 
 use std::env;
 use std::fs;
-use std::io::{Read,Write};
-use nom::{FileProducer,MemProducer,Producer};
-use nom::{ConsumerState,Consumer};
-use nom::{IResult};
-use pcapng::block::{RawBlock,parse_blocks,parse_block};
+use std::io::Read;
+use nom::IResult;
+use pcapng::block::parse_blocks;
 
 fn main() {
     let args: Vec<_> = env::args().collect();
@@ -25,7 +23,7 @@ fn main() {
 
     let mut fh = fs::File::open(&args[1]).unwrap();
     let mut buf: Vec<u8> = Vec::new();
-    let read = fh.read_to_end(&mut buf);
+    let _ = fh.read_to_end(&mut buf);
 
     match pcapng::block::parse_blocks(&buf[..]) {
         IResult::Done(_, blocks) => {
