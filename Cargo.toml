@@ -1,11 +1,12 @@
 [package]
 name = "pcapng"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Richo Healey <richo@psych0tik.net>"]
 
 repository = "https://github.com/richo/pcapng-rs"
 description = "a pcapng parser, implemented in rust"
 license = "MIT"
+documentation = "http://richo.psych0tik.net/pcapng-rs/pcapng/"
 
 [dependencies]
 nom = "~0.3.6"
