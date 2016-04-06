@@ -2,6 +2,7 @@ use nom::IResult;
 use nom::le_u32;
 use block::RawBlock;
 use options::{parse_options,Options};
+use util;
 
 pub const TY: u32 = 0x00000006;
 
@@ -48,6 +49,7 @@ named!(enhanced_packet_body<&[u8],EnhancedPacket>,
            // padding bytes added at the end of the Packet Data field to align the Packet Data
            // Field to a 32-bit boundary
            data: take!(captured_len as usize) ~
+           take!(util::pad_to_32bits(captured_len as usize)) ~
            options: parse_options? ,
 
            ||{
