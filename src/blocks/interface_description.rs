@@ -46,13 +46,13 @@ named!(interface_description_body<&[u8],InterfaceDescription>,
 
 #[derive(Debug)]
 pub struct InterfaceDescription<'a> {
-    ty: u32,
-    block_length: u32,
-    link_type: u16,
-    reserved: u16,
-    snap_len: u32,
+    pub ty: u32,
+    pub block_length: u32,
+    pub link_type: u16,
+    pub reserved: u16,
+    pub snap_len: u32,
     pub options: Option<Options<'a>>,
-    check_length: u32,
+    pub check_length: u32,
 }
 
 pub fn parse(blk: RawBlock) -> InterfaceDescription {

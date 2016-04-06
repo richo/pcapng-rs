@@ -83,14 +83,14 @@ pub fn parse(blk: RawBlock) -> EnhancedPacket {
 
 #[derive(Debug)]
 pub struct EnhancedPacket<'a> {
-    ty: u32,
-    block_length: u32,
-    interface_id: u32,
-    timestamp_hi: u32,
-    timestamp_lo: u32,
-    captured_len: u32,
-    packet_len: u32,
-    data: &'a [u8],
+    pub ty: u32,
+    pub block_length: u32,
+    pub interface_id: u32,
+    pub timestamp_hi: u32,
+    pub timestamp_lo: u32,
+    pub captured_len: u32,
+    pub packet_len: u32,
+    pub data: &'a [u8],
     pub options: Option<Options<'a>>,
-    check_length: u32,
+    pub check_length: u32,
 }

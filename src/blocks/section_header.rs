@@ -65,14 +65,14 @@ pub enum SectionLength {
 
 #[derive(Debug)]
 pub struct SectionHeader<'a> {
-    ty: u32,
-    block_length: u32,
-    magic: u32,
-    major_version: u16,
-    minor_version: u16,
-    section_length: SectionLength,
+    pub ty: u32,
+    pub block_length: u32,
+    pub magic: u32,
+    pub major_version: u16,
+    pub minor_version: u16,
+    pub section_length: SectionLength,
     pub options: Option<Options<'a>>,
-    check_length: u32,
+    pub check_length: u32,
 }
 
 pub fn parse(blk: RawBlock) -> SectionHeader {

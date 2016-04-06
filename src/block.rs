@@ -25,7 +25,7 @@ pub struct RawBlock<'a> {
     //  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     //  |                      Block Total Length                       |
     //  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    ty: u32,
+    pub ty: u32,
     pub block_length: u32,
     pub body: &'a [u8],
     pub check_length: u32,

@@ -2,6 +2,6 @@
 extern crate nom;
 
 pub mod block;
-mod blocks;
-mod options;
+pub mod blocks;
+pub mod options;
 mod util;
