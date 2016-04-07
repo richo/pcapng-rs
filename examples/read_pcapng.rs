@@ -27,6 +27,5 @@ fn main() {
         }
         IResult::Error(e)      => panic!("Error: {:?}", e),
         IResult::Incomplete(i) => panic!("Incomplete: {:?}", i),
-
     }
 }
