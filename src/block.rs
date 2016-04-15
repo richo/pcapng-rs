@@ -8,6 +8,7 @@ pub enum Block<'a> {
     SectionHeader(blocks::SectionHeader<'a>),
     EnhancedPacket(blocks::EnhancedPacket<'a>),
     InterfaceDescription(blocks::InterfaceDescription<'a>),
+    UnknownBlock(RawBlock<'a>),
 }
 
 /// Public representation of a parsed block
@@ -32,17 +33,15 @@ pub struct RawBlock<'a> {
 }
 
 impl<'a> RawBlock<'a> {
-    pub fn parse(self) -> Option<Block<'a>> {
-        let block = match self.ty {
+    pub fn parse(self) -> Block<'a> {
+        match self.ty {
             blocks::section_header::TY => Block::SectionHeader(blocks::section_header::parse(self)),
             blocks::enhanced_packet::TY => Block::EnhancedPacket(blocks::enhanced_packet::parse(self)),
             blocks::interface_description::TY => Block::InterfaceDescription(blocks::interface_description::parse(self)),
 
-            _ => return None,
+            _ => Block::UnknownBlock(self),
 
-        };
-
-        return Some(block);
+        }
     }
 }
 
@@ -140,7 +139,7 @@ fn test_multiple_options() {
     match parse_block(input) {
         IResult::Done(left, block) => {
             assert_eq!(left, b"");
-            if let Some(Block::SectionHeader(blk)) = block.parse() {
+            if let Block::SectionHeader(blk) = block.parse() {
                 if let Some(opts) = blk.options {
                     assert_eq!(opts.options.len(), 3);
 
