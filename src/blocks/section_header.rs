@@ -33,7 +33,7 @@ named!(section_header_body<&[u8],SectionHeader>,
            major_version: le_u16 ~
            minor_version: le_u16 ~
            _section_length: le_u64 ~
-           options: parse_options?,
+           options: opt!(complete!(parse_options)),
 
            // Can we get the blocks by virtue of knowing how much data we have left here?
            ||{
