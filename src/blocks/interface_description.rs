@@ -28,7 +28,7 @@ named!(interface_description_body<&[u8],InterfaceDescription>,
            link_type: le_u16 ~
            reserved: le_u16 ~
            snap_len: le_u32 ~
-           options: parse_options? ,
+           options: opt!(complete!(parse_options)),
            ||{
                InterfaceDescription {
                    ty: TY,

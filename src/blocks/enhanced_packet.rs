@@ -50,7 +50,7 @@ named!(enhanced_packet_body<&[u8],EnhancedPacket>,
            // Field to a 32-bit boundary
            data: take!(captured_len as usize) ~
            take!(util::pad_to_32bits(captured_len as usize)) ~
-           options: parse_options? ,
+           options: opt!(complete!(parse_options)),
 
            ||{
                EnhancedPacket {
