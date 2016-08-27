@@ -1,6 +1,7 @@
 use nom::IResult;
 use nom::{le_u64,le_u32,le_u16};
 use block::RawBlock;
+use blocks::constants::BlockType;
 use options::{parse_options,Options};
 
 pub const TY: u32 = 0x0A0D0D0A;
@@ -104,7 +105,7 @@ fn test_parse_section_header() {
 
             // Ignored because we do not currently parse the whole block
             assert_eq!(left, b"");
-            assert_eq!(section_header.ty, 0x0A0D0D0A);
+            assert_eq!(section_header.ty, BlockType::SectionHeader as u32);
             assert_eq!(section_header.block_length, 28);
             assert_eq!(section_header.magic, 0x1A2B3C4D);
             assert_eq!(section_header.section_length, SectionLength::Unspecified);
