@@ -1,8 +1,8 @@
 use nom::IResult;
-use nom::{le_u64,le_u32,le_u16};
+use nom::{le_u64, le_u32, le_u16};
 use block::RawBlock;
 use blocks::constants::BlockType;
-use options::{parse_options,Options};
+use options::{parse_options, Options};
 
 pub const TY: u32 = 0x0A0D0D0A;
 
@@ -36,7 +36,7 @@ named!(section_header_body<&[u8],SectionHeader>,
            _section_length: le_u64 ~
            options: opt!(complete!(parse_options)),
 
-           // Can we get the blocks by virtue of knowing how much data we have left here?
+// Can we get the blocks by virtue of knowing how much data we have left here?
            ||{
                let section_length = if _section_length == 0xFFFFFFFFFFFFFFFF {
                    SectionLength::Unspecified
@@ -86,7 +86,7 @@ pub fn parse(blk: RawBlock) -> SectionHeader {
             block.block_length = blk.block_length;
             block.check_length = blk.check_length;
             block
-        },
+        }
         _ => {
             panic!("Couldn't unpack this section_header");
         }
@@ -111,9 +111,9 @@ fn test_parse_section_header() {
             assert_eq!(section_header.section_length, SectionLength::Unspecified);
             assert!(section_header.options.is_none());
             assert_eq!(section_header.check_length, 28);
-        },
+        }
         _ => {
             assert_eq!(1, 2);
-        },
+        }
     }
 }

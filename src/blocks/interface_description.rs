@@ -1,8 +1,8 @@
 use nom::IResult;
-use nom::{le_u32,le_u16};
+use nom::{le_u32, le_u16};
 use block::RawBlock;
 use blocks::constants::*;
-use options::{parse_options,Options};
+use options::{parse_options, Options};
 
 pub const TY: u32 = 0x00000001;
 
@@ -64,7 +64,7 @@ pub fn parse(blk: RawBlock) -> InterfaceDescription {
             block.block_length = blk.block_length;
             block.check_length = blk.check_length;
             block
-        },
+        }
         _ => {
             panic!("Couldn't unpack this interface_description_header");
         }
@@ -87,15 +87,15 @@ fn test_parse_interface_description_header() {
             assert_eq!(interface_description_header.link_type, LinkType::ETHERNET as u16);
             assert_eq!(interface_description_header.snap_len, 0x40000);
             assert_eq!(interface_description_header.check_length, 136);
-            
+
             if let Some(opts) = interface_description_header.options {
                 assert_eq!(opts.options.len(), 4);
-                
+
                 let o = &opts.options[0];
                 assert_eq!(o.code, LinkTypeOptions::name as u16);
                 assert_eq!(o.length, 0x32);
                 assert_eq!(o.value[..], b"\\Device\\NPF_{E4C14128-41F5-42C5-9A55-D6223B02C2B1}"[..]);
-                
+
                 let o = &opts.options[1];
                 assert_eq!(o.code, LinkTypeOptions::tsresol as u16);
                 assert_eq!(o.length, 1);
@@ -109,13 +109,13 @@ fn test_parse_interface_description_header() {
             } else {
                 panic!("expected options.");
             }
-        },
+        }
         IResult::Incomplete(e) => {
             println!("Incomplete: {:?}", e);
             assert!(false, "failed to parse interface_description header");
-        },
+        }
         IResult::Error(e) => {
             assert!(false, "failed to parse interface_description header");
-        },
+        }
     }
 }

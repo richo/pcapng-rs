@@ -40,7 +40,7 @@ pub enum LinkType {
     FRELAY = 107,
     LOOP = 108,
     ENC = 109,
-    LANE8023 = 110, 
+    LANE8023 = 110,
     HIPPI = 111,
     HDLC = 112,
     LINUX_SLL = 113,
