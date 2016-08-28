@@ -97,3 +97,25 @@ pub enum LinkTypeOptions {
     Fcslen = 13,
     TsOffset = 14,
 }
+
+#[repr(C)]
+pub enum EnhancedPacketOptions {
+    EndOfOpt = 0,
+    Comment = 1,
+    Flags = 2,
+    Hash = 3,
+    DropCount = 4,
+}
+
+#[repr(C)]
+pub enum InterfaceStatisticsOptions {
+    EndOfOpt = 0,
+    Comment = 1,
+    StartTime = 2,
+    EndTime = 3,
+    IfRecv = 4,
+    IfDrop = 5,
+    FilterAccept = 6,
+    OSDrop = 7,
+    UsrDeliv = 8,
+}

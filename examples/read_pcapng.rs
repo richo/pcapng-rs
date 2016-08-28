@@ -22,7 +22,9 @@ fn main() {
     match pcapng::block::parse_blocks(&buf[..]) {
         IResult::Done(_, blocks) => {
             for i in blocks {
-                println!("{:?}", i.parse());
+                if let IResult::Done(_, blk) = i.parse() {
+                    println!("{:?}", blk);
+                }
             }
         }
         IResult::Error(e)      => panic!("Error: {:?}", e),
