@@ -5,3 +5,5 @@ pub mod block;
 mod blocks;
 mod options;
 mod util;
+
+pub mod decoders;
