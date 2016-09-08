@@ -53,8 +53,8 @@ named!(pub parse_options< &[u8],Options >,
        chain!(
            opts: many1!(option),
            ||{
-// It's also not super clear to me that we actually want to include the final option
-// in the vector
+               // It's also not super clear to me that we actually want to include the final option
+               // in the vector.
                if let Some(last) = opts.last() {
                    assert_eq!(last.code, 0x0);
                    assert_eq!(last.length, 0x0);

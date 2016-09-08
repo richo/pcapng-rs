@@ -35,7 +35,7 @@ named!(section_header_body<&[u8],SectionHeader>,
            _section_length: le_u64 ~
            options: opt!(complete!(parse_options)),
 
-// Can we get the blocks by virtue of knowing how much data we have left here?
+           // Can we get the blocks by virtue of knowing how much data we have left here?
            ||{
                let section_length = if _section_length == 0xFFFFFFFFFFFFFFFF {
                    SectionLength::Unspecified

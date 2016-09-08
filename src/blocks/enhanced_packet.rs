@@ -42,11 +42,11 @@ named!(enhanced_packet_body<&[u8],EnhancedPacket>,
            captured_len: le_u32 ~
            packet_len: le_u32 ~
 
-// Captured Len: number of bytes captured from the packet (i.e. the length of the Packet
-// Data field). It will be the minimum value among the actual Packet Length and the
-// snapshot length (defined in Figure 9). The value of this field does not include the
-// padding bytes added at the end of the Packet Data field to align the Packet Data
-// Field to a 32-bit boundary.
+           // Captured Len: number of bytes captured from the packet (i.e. the length of the Packet
+           // Data field). It will be the minimum value among the actual Packet Length and the
+           // snapshot length (defined in Figure 9). The value of this field does not include the
+           // padding bytes added at the end of the Packet Data field to align the Packet Data
+           // Field to a 32-bit boundary.
            data: take!(captured_len as usize) ~
            take!(util::pad_to_32bits(captured_len as usize)) ~
            options: opt!(complete!(parse_options)),
