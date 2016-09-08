@@ -19,7 +19,7 @@ fn main() {
     let mut buf: Vec<u8> = Vec::new();
     let _ = fh.read_to_end(&mut buf);
 
-    match pcapng::block::parse_blocks(&buf[..]) {
+    match parse_blocks(buf.as_slice()) {
         IResult::Done(_, blocks) => {
             for i in blocks {
                 if let IResult::Done(_, blk) = i.parse() {

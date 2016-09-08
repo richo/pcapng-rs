@@ -1,7 +1,6 @@
 use nom::{le_u32, IResult};
 
 use blocks;
-use blocks::constants::BlockType;
 use util;
 
 #[derive(Debug)]

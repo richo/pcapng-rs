@@ -1,6 +1,5 @@
-use nom::IResult;
-use nom::le_u32;
-use block::{Block, RawBlock};
+use nom::{IResult, le_u32};
+use block::RawBlock;
 use options::{parse_options, Options};
 use util;
 
@@ -83,6 +82,8 @@ pub fn parse(blk: RawBlock) -> IResult<&[u8], EnhancedPacket> {
 }
 
 #[derive(Debug)]
+/// An Enhanced Packet Block is the standard container for storing the packets coming from the
+/// network.
 pub struct EnhancedPacket<'a> {
     pub ty: u32,
     pub block_length: u32,

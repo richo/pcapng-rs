@@ -1,6 +1,5 @@
-use nom::IResult;
-use nom::{le_u32, le_u16};
-use block::{Block, RawBlock};
+use nom::{IResult, le_u32};
+use block::RawBlock;
 use blocks::constants::*;
 use options::{parse_options, Options};
 
@@ -73,27 +72,39 @@ pub fn parse(blk: RawBlock) -> IResult<&[u8], InterfaceStatistics> {
 }
 
 #[cfg(test)]
-use block::parse_block;
+mod tests {
 
-#[test]
-fn test_parse_interface_stats_header() {
-    let input = b"\x05\x00\x00\x00\x6C\x00\x00\x00\x00\x00\x00\x00\x06\x3B\x05\x00\x20\xBD\x9C\x64\x01\x00\x1C\x00\x43\x6F\x75\x6E\x74\x65\x72\x73\x20\x70\x72\x6F\x76\x69\x64\x65\x64\x20\x62\x79\x20\x64\x75\x6D\x70\x63\x61\x70\x02\x00\x08\x00\x06\x3B\x05\x00\x6E\xD9\x8A\x63\x03\x00\x08\x00\x06\x3B\x05\x00\xC8\xBC\x9C\x64\x04\x00\x08\x00\x35\x00\x00\x00\x00\x00\x00\x00\x05\x00\x08\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x6C\x00\x00\x00";
-    match parse_block(input) {
-        IResult::Done(left, block) => {
-            if let IResult::Done(left, interface_stats_header) = parse(block) {
+    use nom::IResult;
 
-                assert_eq!(left, b"");
-                assert_eq!(interface_stats_header.ty, TY);
-            } else {
-                assert!(false, "failed to parse interface_stats_header");
+    use super::*;
+    use block::parse_block;
+
+    #[test]
+    fn test_parse_interface_stats_header() {
+        let input = b"\x05\x00\x00\x00\x6C\x00\x00\x00\x00\x00\x00\x00\x06\x3B\x05\x00\x20\xBD\x9C\
+    \x64\x01\x00\x1C\x00\x43\x6F\x75\x6E\x74\x65\x72\x73\x20\x70\x72\x6F\x76\x69\x64\x65\x64\x20\
+    \x62\x79\x20\x64\x75\x6D\x70\x63\x61\x70\x02\x00\x08\x00\x06\x3B\x05\x00\x6E\xD9\x8A\x63\x03\
+    \x00\x08\x00\x06\x3B\x05\x00\xC8\xBC\x9C\x64\x04\x00\x08\x00\x35\x00\x00\x00\x00\x00\x00\x00\
+    \x05\x00\x08\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x6C\x00\x00\x00";
+
+        match parse_block(input) {
+            IResult::Done(_, block) => {
+                if let IResult::Done(left, interface_stats_header) = parse(block) {
+
+                    assert_eq!(left, b"");
+                    assert_eq!(interface_stats_header.ty, TY);
+                } else {
+                    assert!(false, "failed to parse interface_stats_header");
+                }
             }
-        }
-        IResult::Incomplete(e) => {
-            println!("Incomplete: {:?}", e);
-            assert!(false, "failed to parse interface_stats header");
-        }
-        IResult::Error(e) => {
-            assert!(false, "failed to parse interface_stats header");
+            IResult::Incomplete(e) => {
+                println!("Incomplete: {:?}", e);
+                assert!(false, "failed to parse interface_stats header");
+            }
+            IResult::Error(e) => {
+                println!("Error: {:?}", e);
+                assert!(false, "failed to parse interface_stats header");
+            }
         }
     }
 }
