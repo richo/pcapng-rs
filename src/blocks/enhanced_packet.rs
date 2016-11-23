@@ -1,7 +1,6 @@
-use nom::IResult;
-use nom::le_u32;
+use nom::{IResult, le_u32};
 use block::RawBlock;
-use options::{parse_options,Options};
+use options::{parse_options, Options};
 use util;
 
 pub const TY: u32 = 0x00000006;
@@ -47,7 +46,7 @@ named!(enhanced_packet_body<&[u8],EnhancedPacket>,
            // Data field). It will be the minimum value among the actual Packet Length and the
            // snapshot length (defined in Figure 9). The value of this field does not include the
            // padding bytes added at the end of the Packet Data field to align the Packet Data
-           // Field to a 32-bit boundary
+           // Field to a 32-bit boundary.
            data: take!(captured_len as usize) ~
            take!(util::pad_to_32bits(captured_len as usize)) ~
            options: opt!(complete!(parse_options)),
@@ -69,21 +68,22 @@ named!(enhanced_packet_body<&[u8],EnhancedPacket>,
            )
        );
 
-pub fn parse(blk: RawBlock) -> EnhancedPacket {
+pub fn parse(blk: RawBlock) -> IResult<&[u8], EnhancedPacket> {
     match enhanced_packet_body(blk.body) {
         // FIXME(richo) actually do something with the leftover bytes
-        IResult::Done(_, mut block) => {
+        IResult::Done(left, mut block) => {
             block.block_length = blk.block_length;
             block.check_length = blk.check_length;
-            block
-        },
-        _ => {
-            panic!("Couldn't unpack this section_header");
+            IResult::Done(left, block)
         }
+        IResult::Error(e) => IResult::Error(e),
+        IResult::Incomplete(e) => IResult::Incomplete(e),
     }
 }
 
 #[derive(Debug)]
+/// An Enhanced Packet Block is the standard container for storing the packets coming from the
+/// network.
 pub struct EnhancedPacket<'a> {
     pub ty: u32,
     pub block_length: u32,

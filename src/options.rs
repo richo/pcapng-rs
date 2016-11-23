@@ -54,7 +54,7 @@ named!(pub parse_options< &[u8],Options >,
            opts: many1!(option),
            ||{
                // It's also not super clear to me that we actually want to include the final option
-               // in the vector
+               // in the vector.
                if let Some(last) = opts.last() {
                    assert_eq!(last.code, 0x0);
                    assert_eq!(last.length, 0x0);
@@ -81,10 +81,10 @@ fn test_parse_options() {
             assert_eq!(o.length, 0x08);
             assert_eq!(o.value, b"asdfasdf");
 
-        },
+        }
         _ => {
             panic!("Hit a codepath we shouldn't have");
-        },
+        }
     }
 }
 
@@ -112,9 +112,9 @@ fn test_multiple_options() {
             assert_eq!(o.code, 0x00);
             assert_eq!(o.length, 0x00);
             assert_eq!(&o.value[..], b"");
-        },
+        }
         _ => {
             panic!("Hit a codepath we shouldn't have");
-        },
+        }
     }
 }

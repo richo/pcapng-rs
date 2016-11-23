@@ -1,4 +1,4 @@
-use nom::{le_u32};
+use nom::{le_u32, IResult};
 
 use blocks;
 use util;
@@ -8,6 +8,7 @@ pub enum Block<'a> {
     SectionHeader(blocks::SectionHeader<'a>),
     EnhancedPacket(blocks::EnhancedPacket<'a>),
     InterfaceDescription(blocks::InterfaceDescription<'a>),
+    InterfaceStatistics(blocks::InterfaceStatistics<'a>),
     UnknownBlock(RawBlock<'a>),
 }
 
@@ -33,14 +34,44 @@ pub struct RawBlock<'a> {
 }
 
 impl<'a> RawBlock<'a> {
-    pub fn parse(self) -> Block<'a> {
+    pub fn parse(self) -> IResult<&'a [u8], Block<'a>> {
         match self.ty {
-            blocks::section_header::TY => Block::SectionHeader(blocks::section_header::parse(self)),
-            blocks::enhanced_packet::TY => Block::EnhancedPacket(blocks::enhanced_packet::parse(self)),
-            blocks::interface_description::TY => Block::InterfaceDescription(blocks::interface_description::parse(self)),
+            blocks::section_header::TY => {
+                match blocks::section_header::parse(self) {
+                    IResult::Done(left, blk) => IResult::Done(left, Block::SectionHeader(blk)),
+                    IResult::Error(e) => IResult::Error(e),
+                    IResult::Incomplete(e) => IResult::Incomplete(e),
+                }
+            }
 
-            _ => Block::UnknownBlock(self),
+            blocks::enhanced_packet::TY => {
+                match blocks::enhanced_packet::parse(self) {
+                    IResult::Done(left, blk) => IResult::Done(left, Block::EnhancedPacket(blk)),
+                    IResult::Error(e) => IResult::Error(e),
+                    IResult::Incomplete(e) => IResult::Incomplete(e),
+                }
+            }
 
+            blocks::interface_stats::TY => {
+                match blocks::interface_stats::parse(self) {
+                    IResult::Done(left, blk) => {
+                        IResult::Done(left, Block::InterfaceStatistics(blk))
+                    }
+                    IResult::Error(e) => IResult::Error(e),
+                    IResult::Incomplete(e) => IResult::Incomplete(e),
+                }
+            }
+
+            blocks::interface_description::TY => {
+                match blocks::interface_description::parse(self) {
+                    IResult::Done(left, blk) => {
+                        IResult::Done(left, Block::InterfaceDescription(blk))
+                    }
+                    IResult::Error(e) => IResult::Error(e),
+                    IResult::Incomplete(e) => IResult::Incomplete(e),
+                }
+            }
+            _ => IResult::Done(&self.body[0..0], Block::UnknownBlock(self)),
         }
     }
 }
@@ -67,8 +98,6 @@ named!(pub parse_blocks< &[u8],Vec<RawBlock> >,
        many1!(parse_block)
        );
 
-#[cfg(test)]
-use nom::IResult;
 
 #[test]
 fn test_parse_block() {
@@ -81,10 +110,10 @@ fn test_parse_block() {
             assert_eq!(block_length, 28);
             assert_eq!(body, b"M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff");
             assert_eq!(check_length, 28);
-        },
+        }
         _ => {
             assert_eq!(1, 2);
-        },
+        }
     }
 }
 
@@ -104,10 +133,10 @@ fn test_parse_blocks() {
                 assert_eq!(body, b"M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff");
                 assert_eq!(check_length, 28);
             }
-        },
+        }
         _ => {
             assert_eq!(1, 2);
-        },
+        }
     }
 }
 
@@ -123,10 +152,10 @@ fn test_parse_weird_length_block() {
             assert_eq!(body.len() + 12, block_length as usize);
             assert_eq!(body, b"<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff");
             assert_eq!(body.len() + 12, check_length as usize);
-        },
+        }
         _ => {
             unreachable!("Couldn't parse the block");
-        },
+        }
     }
 }
 
@@ -139,7 +168,7 @@ fn test_multiple_options() {
     match parse_block(input) {
         IResult::Done(left, block) => {
             assert_eq!(left, b"");
-            if let Block::SectionHeader(blk) = block.parse() {
+            if let IResult::Done(_, Block::SectionHeader(blk)) = block.parse() {
                 if let Some(opts) = blk.options {
                     assert_eq!(opts.options.len(), 3);
 
@@ -163,9 +192,9 @@ fn test_multiple_options() {
             } else {
                 unreachable!();
             }
-        },
+        }
         _ => {
             panic!("Hit a codepath we shouldn't have");
-        },
+        }
     }
 }
