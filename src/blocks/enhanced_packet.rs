@@ -36,23 +36,23 @@ pub const TY: u32 = 0x00000006;
 //    +---------------------------------------------------------------+
 
 named!(enhanced_packet_body<&[u8],EnhancedPacket>,
-       chain!(
-           interface_id: le_u32 ~
-           timestamp_hi: le_u32 ~
-           timestamp_lo: le_u32 ~
-           captured_len: le_u32 ~
-           packet_len: le_u32 ~
+       do_parse!(
+              interface_id: le_u32
+           >> timestamp_hi: le_u32
+           >> timestamp_lo: le_u32
+           >> captured_len: le_u32
+           >> packet_len:   le_u32
 
            // Captured Len: number of bytes captured from the packet (i.e. the length of the Packet
            // Data field). It will be the minimum value among the actual Packet Length and the
            // snapshot length (defined in Figure 9). The value of this field does not include the
            // padding bytes added at the end of the Packet Data field to align the Packet Data
            // Field to a 32-bit boundary
-           data: take!(captured_len as usize) ~
-           take!(util::pad_to_32bits(captured_len as usize)) ~
-           options: opt!(complete!(parse_options)),
+           >> data: take!(captured_len as usize)
+           >> take!(util::pad_to_32bits(captured_len as usize))
+           >> options: opt!(complete!(parse_options))
 
-           ||{
+           >> (
                EnhancedPacket {
                    ty: TY,
                    block_length: 0,
@@ -65,9 +65,9 @@ named!(enhanced_packet_body<&[u8],EnhancedPacket>,
                    options: options,
                    check_length: 0,
                }
-           }
            )
-       );
+       )
+);
 
 pub fn parse(blk: RawBlock) -> EnhancedPacket {
     match enhanced_packet_body(blk.body) {

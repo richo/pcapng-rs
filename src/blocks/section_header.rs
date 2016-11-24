@@ -28,15 +28,15 @@ pub const TY: u32 = 0x0A0D0D0A;
 //    +---------------------------------------------------------------+
 
 named!(section_header_body<&[u8],SectionHeader>,
-       chain!(
-           magic: le_u32 ~
-           major_version: le_u16 ~
-           minor_version: le_u16 ~
-           _section_length: le_u64 ~
-           options: opt!(complete!(parse_options)),
+       do_parse!(
+              magic: le_u32
+           >> major_version: le_u16
+           >> minor_version: le_u16
+           >> _section_length: le_u64
+           >> options: opt!(complete!(parse_options))
 
            // Can we get the blocks by virtue of knowing how much data we have left here?
-           ||{
+           >> ( {
                let section_length = if _section_length == 0xFFFFFFFFFFFFFFFF {
                    SectionLength::Unspecified
                } else {
@@ -53,7 +53,7 @@ named!(section_header_body<&[u8],SectionHeader>,
                    section_length: section_length,
                    options: options,
                    check_length: 0,
-           } }
+           } } )
            )
       );
 
