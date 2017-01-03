@@ -23,12 +23,12 @@ pub const TY: u32 = 0x00000001;
 //    +---------------------------------------------------------------+
 
 named!(interface_description_body<&[u8],InterfaceDescription>,
-       chain!(
-           link_type: le_u16 ~
-           reserved: le_u16 ~
-           snap_len: le_u32 ~
-           options: opt!(complete!(parse_options)),
-           ||{
+       do_parse!(
+              link_type: le_u16
+           >> reserved:  le_u16
+           >> snap_len:  le_u32
+           >> options:   opt!(complete!(parse_options))
+           >> (
                InterfaceDescription {
                    ty: TY,
                    block_length: 0,
@@ -39,9 +39,9 @@ named!(interface_description_body<&[u8],InterfaceDescription>,
                    check_length: 0,
                }
 
-           }
            )
-       );
+       )
+);
 
 #[derive(Debug)]
 pub struct InterfaceDescription<'a> {

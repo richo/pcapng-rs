@@ -30,29 +30,29 @@ pub struct Opt<'a> {
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 named!(option<&[u8],Opt>,
-       chain!(
-           code: le_u16 ~
-           length: le_u16 ~
-           value: take!(length as usize) ~
-           take!(util::pad_to_32bits(length as usize)),
-           ||{
+       do_parse!(
+              code:   le_u16
+           >> length: le_u16
+           >> value:  take!(length as usize)
+           >>         take!(util::pad_to_32bits(length as usize))
+           >> (
                Opt {
                    code: code,
                    length: length,
                    value: value,
                }
-           }
            )
-      );
+       )
+);
 
 // It's not abundantly clear to me that this is actually safe.
 // My belief is that because we're operating on a &[u8] that was carved out of the high level
 // buffer, and that *it* is a fat pointer with a length, the runtime will stop us from running off
 // the end, but it needs to be actually proven.
 named!(pub parse_options< &[u8],Options >,
-       chain!(
-           opts: many1!(option),
-           ||{
+       do_parse!(
+              opts: many1!(option)
+           >> ( {
                // It's also not super clear to me that we actually want to include the final option
                // in the vector.
                if let Some(last) = opts.last() {
@@ -62,9 +62,9 @@ named!(pub parse_options< &[u8],Options >,
                Options {
                    options: opts
                }
-           }
-           )
-      );
+           })
+       )
+);
 
 #[cfg(test)]
 use nom::IResult;

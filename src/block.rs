@@ -78,19 +78,19 @@ impl<'a> RawBlock<'a> {
 
 
 named!(pub parse_block< &[u8],RawBlock >,
-       chain!(
-           ty: le_u32 ~
-           block_length: le_u32 ~
-           body: take!((block_length - 12) as usize) ~
-           take!(util::pad_to_32bits((block_length - 12) as usize)) ~
-           check_length: le_u32 ,
+       do_parse!(
+              ty: le_u32
+           >> block_length: le_u32
+           >> body: take!((block_length - 12) as usize)
+           >> take!(util::pad_to_32bits((block_length - 12) as usize))
+           >> check_length: le_u32
 
-           ||{ RawBlock {
+           >> ( RawBlock {
                ty: ty,
                block_length: block_length,
                body: body,
                check_length: check_length
-           } }
+           } )
            )
       );
 
