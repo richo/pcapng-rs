@@ -1,7 +1,7 @@
 use nom::IResult;
-use nom::{le_u64,le_u32,le_u16};
+use nom::{le_u64, le_u32, le_u16};
 use block::RawBlock;
-use options::{parse_options,Options};
+use options::{parse_options, Options};
 
 pub const TY: u32 = 0x0A0D0D0A;
 
@@ -75,44 +75,50 @@ pub struct SectionHeader<'a> {
     pub check_length: u32,
 }
 
-pub fn parse(blk: RawBlock) -> SectionHeader {
+pub fn parse(blk: RawBlock) -> IResult<&[u8], SectionHeader> {
     // TODO(richo) Actually parse out the options afterward
     // I think that we can do this by invoking an options parser, and using the fact that we're
     // dealing with slices by this point to our advantage
     match section_header_body(blk.body) {
-        // FIXME(richo) actually do smeometing with the leftover bytes
-        IResult::Done(_, mut block) => {
+        // FIXME(richo) actually do something with the leftover bytes
+        IResult::Done(left, mut block) => {
             block.block_length = blk.block_length;
             block.check_length = blk.check_length;
-            block
-        },
-        _ => {
-            panic!("Couldn't unpack this section_header");
+            IResult::Done(left, block)
         }
+        IResult::Error(e) => IResult::Error(e),
+        IResult::Incomplete(e) => IResult::Incomplete(e),
     }
 }
 
 #[cfg(test)]
-use block::parse_block;
+mod tests {
+    use nom::IResult;
 
-#[test]
-fn test_parse_section_header() {
-    let input = b"\n\r\r\n\x1c\x00\x00\x00M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x1c\x00\x00\x00";
-    match parse_block(input) {
-        IResult::Done(left, block) => {
-            let section_header = parse(block);
+    use super::*;
+    use block::parse_block;
+    use blocks::constants::BlockType;
 
-            // Ignored because we do not currently parse the whole block
-            assert_eq!(left, b"");
-            assert_eq!(section_header.ty, 0x0A0D0D0A);
-            assert_eq!(section_header.block_length, 28);
-            assert_eq!(section_header.magic, 0x1A2B3C4D);
-            assert_eq!(section_header.section_length, SectionLength::Unspecified);
-            assert!(section_header.options.is_none());
-            assert_eq!(section_header.check_length, 28);
-        },
-        _ => {
-            assert_eq!(1, 2);
-        },
+    #[test]
+    fn test_parse_section_header() {
+        let input = b"\n\r\r\n\x1c\x00\x00\x00M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x1c\x00\x00\x00";
+        match parse_block(input) {
+            IResult::Done(_, block) => {
+                if let IResult::Done(left, section_header) = parse(block) {
+
+                    // Ignored because we do not currently parse the whole block
+                    assert_eq!(left, b"");
+                    assert_eq!(section_header.ty, BlockType::SectionHeader as u32);
+                    assert_eq!(section_header.block_length, 28);
+                    assert_eq!(section_header.magic, 0x1A2B3C4D);
+                    assert_eq!(section_header.section_length, SectionLength::Unspecified);
+                    assert!(section_header.options.is_none());
+                    assert_eq!(section_header.check_length, 28);
+                }
+            }
+            _ => {
+                assert!(false);
+            }
+        }
     }
 }
