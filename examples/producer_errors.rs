@@ -3,16 +3,17 @@ extern crate nom;
 extern crate pcapng;
 
 use std::env;
-use nom::{FileProducer,Producer,ConsumerState};
+use nom::{IResult,FileProducer,Producer,ConsumerState};
 use pcapng::block::parse_block;
 
+use std::fmt::Debug;
+pub fn print_block<T: Debug>(input: T) -> IResult<T,()> {
+  println!("{:?}", input);
+  IResult::Done(input, ())
+}
+
 consumer_from_parser!(Printer<()>,
-       chain!(
-           block: parse_block ,
-           ||{
-               println!("{:?}", block);
-           }
-           ));
+                      flat_map!(parse_block, print_block));
 
 fn main() {
     let args: Vec<_> = env::args().collect();
