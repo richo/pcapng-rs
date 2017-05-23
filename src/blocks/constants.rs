@@ -1,3 +1,5 @@
+#![allow(non_camel_case_types)]
+
 #[repr(C)]
 #[derive(Debug, Eq, PartialEq)]
 pub enum BlockType {
