@@ -9,4 +9,4 @@ license = "MIT"
 documentation = "http://richo.psych0tik.net/pcapng-rs/pcapng/"
 
 [dependencies]
-nom = "^2.0"
+nom = "^3.0"

@@ -26,12 +26,12 @@ pub const TY: u32 = BlockType::InterfaceStatistics as u32;
 //    +---------------------------------------------------------------+
 
 named!(interface_stats_body<&[u8], InterfaceStatistics>,
-       chain!(
-           interface_id: le_u32 ~
-           timestamp_high: le_u32 ~
-           timestamp_low: le_u32 ~
-           options: opt!(complete!(parse_options)),
-           ||{
+       do_parse!(
+           interface_id: le_u32 >>
+           timestamp_high: le_u32 >>
+           timestamp_low: le_u32 >>
+           options: opt!(complete!(parse_options)) >>
+           (
                InterfaceStatistics {
                    ty: TY,
                    block_length: 0,
@@ -42,7 +42,7 @@ named!(interface_stats_body<&[u8], InterfaceStatistics>,
                    check_length: 0,
                }
 
-           }
+           )
            )
        );
 
