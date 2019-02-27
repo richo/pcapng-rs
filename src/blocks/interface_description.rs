@@ -22,7 +22,7 @@ pub const TY: u32 = 0x00000001;
 //    |                      Block Total Length                       |
 //    +---------------------------------------------------------------+
 
-named!(interface_description_body<&[u8], InterfaceDescription>,
+named!(interface_description_body<InterfaceDescription>,
        do_parse!(
               link_type: le_u16
            >> reserved:  le_u16
