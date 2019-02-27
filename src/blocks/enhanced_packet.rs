@@ -34,7 +34,7 @@ pub const TY: u32 = 0x00000006;
 //    |                      Block Total Length                       |
 //    +---------------------------------------------------------------+
 
-named!(enhanced_packet_body<&[u8],EnhancedPacket>,
+named!(enhanced_packet_body<EnhancedPacket>,
        do_parse!(
               interface_id: le_u32
            >> timestamp_hi: le_u32
@@ -50,7 +50,7 @@ named!(enhanced_packet_body<&[u8],EnhancedPacket>,
            // Field to a 32-bit boundary
            >> data: take!(captured_len as usize)
            >> take!(util::pad_to_32bits(captured_len as usize))
-           >> options: opt!(complete!(parse_options))
+           >> options: opt!(parse_options)
 
 
            >> (
@@ -73,13 +73,12 @@ named!(enhanced_packet_body<&[u8],EnhancedPacket>,
 pub fn parse(blk: RawBlock) -> IResult<&[u8], EnhancedPacket> {
     match enhanced_packet_body(blk.body) {
         // FIXME(richo) actually do something with the leftover bytes
-        IResult::Done(left, mut block) => {
+        Ok((left, mut block)) => {
             block.block_length = blk.block_length;
             block.check_length = blk.check_length;
-            IResult::Done(left, block)
-        }
-        IResult::Error(e) => IResult::Error(e),
-        IResult::Incomplete(e) => IResult::Incomplete(e),
+            Ok((left, block))
+        },
+        other => other
     }
 }
 

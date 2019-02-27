@@ -22,12 +22,12 @@ pub const TY: u32 = 0x00000001;
 //    |                      Block Total Length                       |
 //    +---------------------------------------------------------------+
 
-named!(interface_description_body<&[u8],InterfaceDescription>,
+named!(interface_description_body<&[u8], InterfaceDescription>,
        do_parse!(
               link_type: le_u16
            >> reserved:  le_u16
            >> snap_len:  le_u32
-           >> options:   opt!(complete!(parse_options))
+           >> options:   opt!(parse_options)
            >> (
                InterfaceDescription {
                    ty: TY,
@@ -58,20 +58,17 @@ pub struct InterfaceDescription<'a> {
 pub fn parse(blk: RawBlock) -> IResult<&[u8], InterfaceDescription> {
     match interface_description_body(blk.body) {
         // FIXME(richo) Actually do something with the leftover bytes
-        IResult::Done(left, mut block) => {
+        Ok((left, mut block)) => {
             block.block_length = blk.block_length;
             block.check_length = blk.check_length;
-            IResult::Done(left, block)
-        }
-        IResult::Error(e) => IResult::Error(e),
-        IResult::Incomplete(e) => IResult::Incomplete(e),
+            Ok((left, block))
+        },
+        other => other
     }
 }
 
 #[cfg(test)]
 mod tests {
-
-    use nom::IResult;
 
     use super::*;
     use block::parse_block;
@@ -88,45 +85,52 @@ mod tests {
 \x00\x00\x00\x88\x00\x00\x00";
 
         match parse_block(input) {
-            IResult::Done(_, block) => {
-                if let IResult::Done(left, interface_description_header) = parse(block) {
-                    assert_eq!(left, b"");
-                    assert_eq!(interface_description_header.ty, BlockType::InterfaceDescription as u32);
-                    assert_eq!(interface_description_header.block_length, 136);
-                    assert_eq!(interface_description_header.link_type, LinkType::ETHERNET as u16);
-                    assert_eq!(interface_description_header.snap_len, 0x40000);
-                    assert_eq!(interface_description_header.check_length, 136);
+            Ok((_, block)) => {
+                match parse(block) {
+                    Ok((left, interface_description_header)) => {
+                        assert_eq!(left, []);
+                        assert_eq!(interface_description_header.ty, BlockType::InterfaceDescription as u32);
+                        assert_eq!(interface_description_header.block_length, 136);
+                        assert_eq!(interface_description_header.link_type, LinkType::ETHERNET as u16);
+                        assert_eq!(interface_description_header.snap_len, 0x40000);
+                        assert_eq!(interface_description_header.check_length, 136);
 
-                    if let Some(opts) = interface_description_header.options {
-                        assert_eq!(opts.options.len(), 4);
+                        if let Some(opts) = interface_description_header.options {
+                            assert_eq!(opts.options.len(), 4);
 
-                        let o = &opts.options[0];
-                        assert_eq!(o.code, LinkTypeOptions::Name as u16);
-                        assert_eq!(o.length, 0x32);
-                        assert_eq!(o.value[..], b"\\Device\\NPF_{E4C14128-41F5-42C5-9A55-D6223B02C2B1}"[..]);
+                            let o = &opts.options[0];
+                            assert_eq!(o.code, LinkTypeOptions::Name as u16);
+                            assert_eq!(o.length, 0x32);
+                            assert_eq!(o.value[..], b"\\Device\\NPF_{E4C14128-41F5-42C5-9A55-D6223B02C2B1}"[..]);
 
-                        let o = &opts.options[1];
-                        assert_eq!(o.code, LinkTypeOptions::TsResol as u16);
-                        assert_eq!(o.length, 1);
-                        assert_eq!(o.value[..], b"\x06"[..]);
+                            let o = &opts.options[1];
+                            assert_eq!(o.code, LinkTypeOptions::TsResol as u16);
+                            assert_eq!(o.length, 1);
+                            assert_eq!(o.value[..], b"\x06"[..]);
 
-                        let o = &opts.options[2];
-                        assert_eq!(o.code, LinkTypeOptions::OS as u16);
-                        assert_eq!(o.value[..], b"32-bit Windows 7 Service Pack 1, build 7601"[..]);
+                            let o = &opts.options[2];
+                            assert_eq!(o.code, LinkTypeOptions::OS as u16);
+                            assert_eq!(o.value[..], b"32-bit Windows 7 Service Pack 1, build 7601"[..]);
 
-                    } else {
-                        panic!("expected options.");
+                        } else {
+                            panic!("expected options.");
+                        }
+                    },
+                    err => {
+                        panic!("failed to parse interface_description block: {:?}", err);
                     }
-                } else {
-                    panic!("failed to parse interface_description block");
                 }
-            }
-            IResult::Incomplete(e) => {
+            },
+            Err(nom::Err::Incomplete(e)) => {
                 println!("Incomplete: {:?}", e);
                 assert!(false, "failed to parse interface_description header");
             }
-            IResult::Error(e) => {
+            Err(nom::Err::Error(e)) => {
                 println!("Error: {:?}", e);
+                assert!(false, "failed to parse interface_description header");
+            }
+            Err(nom::Err::Failure(f)) => {
+                println!("Failure: {:?}", f);
                 assert!(false, "failed to parse interface_description header");
             }
         }

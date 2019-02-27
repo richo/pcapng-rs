@@ -1,11 +1,9 @@
-#[macro_use]
 extern crate nom;
 extern crate pcapng;
 
 use std::env;
 use std::fs;
 use std::io::Read;
-use nom::IResult;
 use pcapng::block::parse_blocks;
 
 fn main() {
@@ -20,14 +18,15 @@ fn main() {
     let _ = fh.read_to_end(&mut buf);
 
     match parse_blocks(buf.as_slice()) {
-        IResult::Done(_, blocks) => {
+        Ok((_, blocks)) => {
             for i in blocks {
-                if let IResult::Done(_, blk) = i.parse() {
+                if let Ok((_, blk)) = i.parse() {
                     println!("{:?}", blk);
                 }
             }
         }
-        IResult::Error(e)      => panic!("Error: {:?}", e),
-        IResult::Incomplete(i) => panic!("Incomplete: {:?}", i),
+        Err(nom::Err::Error(e))      => panic!("Error: {:?}", e),
+        Err(nom::Err::Incomplete(i)) => panic!("Incomplete: {:?}", i),
+        Err(nom::Err::Failure(f))     => panic!("Failure: {:?}", f),
     }
 }

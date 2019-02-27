@@ -30,7 +30,7 @@ named!(interface_stats_body<&[u8], InterfaceStatistics>,
            interface_id: le_u32 >>
            timestamp_high: le_u32 >>
            timestamp_low: le_u32 >>
-           options: opt!(complete!(parse_options)) >>
+           options: opt!(parse_options) >>
            (
                InterfaceStatistics {
                    ty: TY,
@@ -60,21 +60,17 @@ pub struct InterfaceStatistics<'a> {
 pub fn parse(blk: RawBlock) -> IResult<&[u8], InterfaceStatistics> {
     match interface_stats_body(blk.body) {
         // FIXME(richo) Actually do something with the leftover bytes
-        IResult::Done(left, mut block) => {
+        Ok((left, mut block)) => {
             block.block_length = blk.block_length;
             block.check_length = blk.check_length;
-            IResult::Done(left, block)
-        }
-
-        IResult::Error(e) => IResult::Error(e),
-        IResult::Incomplete(e) => IResult::Incomplete(e),
+            Ok((left, block))
+        },
+        other => other
     }
 }
 
 #[cfg(test)]
 mod tests {
-
-    use nom::IResult;
 
     use super::*;
     use block::parse_block;
@@ -88,8 +84,8 @@ mod tests {
     \x05\x00\x08\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x6C\x00\x00\x00";
 
         match parse_block(input) {
-            IResult::Done(_, block) => {
-                if let IResult::Done(left, interface_stats_header) = parse(block) {
+            Ok((_, block)) => {
+                if let Ok((left, interface_stats_header)) = parse(block) {
 
                     assert_eq!(left, b"");
                     assert_eq!(interface_stats_header.ty, TY);
@@ -97,12 +93,16 @@ mod tests {
                     assert!(false, "failed to parse interface_stats_header");
                 }
             }
-            IResult::Incomplete(e) => {
+            Err(nom::Err::Incomplete(e)) => {
                 println!("Incomplete: {:?}", e);
                 assert!(false, "failed to parse interface_stats header");
             }
-            IResult::Error(e) => {
+            Err(nom::Err::Error(e)) => {
                 println!("Error: {:?}", e);
+                assert!(false, "failed to parse interface_stats header");
+            }
+            Err(nom::Err::Failure(f)) => {
+                println!("Failure: {:?}", f);
                 assert!(false, "failed to parse interface_stats header");
             }
         }
