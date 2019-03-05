@@ -19,15 +19,10 @@ fn main() {
     let mut buf: Vec<u8> = Vec::new();
     let _ = fh.read_to_end(&mut buf);
 
-    match parse_blocks(buf.as_slice()) {
-        IResult::Done(_, blocks) => {
-            for i in blocks {
-                if let IResult::Done(_, blk) = i.parse() {
-                    println!("{:?}", blk);
-                }
-            }
+    let (_, blocks) = parse_blocks(buf.as_slice()).expect("parse_blocks");
+    for i in blocks {
+        if let Ok((_, blk)) = i.parse() {
+            println!("{:?}", blk);
         }
-        IResult::Error(e)      => panic!("Error: {:?}", e),
-        IResult::Incomplete(i) => panic!("Incomplete: {:?}", i),
     }
 }

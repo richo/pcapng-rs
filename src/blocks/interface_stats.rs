@@ -60,14 +60,12 @@ pub struct InterfaceStatistics<'a> {
 pub fn parse(blk: RawBlock) -> IResult<&[u8], InterfaceStatistics> {
     match interface_stats_body(blk.body) {
         // FIXME(richo) Actually do something with the leftover bytes
-        IResult::Done(left, mut block) => {
+        Ok((left, mut block)) => {
             block.block_length = blk.block_length;
             block.check_length = blk.check_length;
-            IResult::Done(left, block)
-        }
-
-        IResult::Error(e) => IResult::Error(e),
-        IResult::Incomplete(e) => IResult::Incomplete(e),
+            Ok((left, block))
+        },
+        Err(e) => Err(e),
     }
 }
 
@@ -87,24 +85,13 @@ mod tests {
     \x00\x08\x00\x06\x3B\x05\x00\xC8\xBC\x9C\x64\x04\x00\x08\x00\x35\x00\x00\x00\x00\x00\x00\x00\
     \x05\x00\x08\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x6C\x00\x00\x00";
 
-        match parse_block(input) {
-            IResult::Done(_, block) => {
-                if let IResult::Done(left, interface_stats_header) = parse(block) {
+        let (_, block) = parse_block(input).unwrap();
+        if let Ok((left, interface_stats_header)) = parse(block) {
 
-                    assert_eq!(left, b"");
-                    assert_eq!(interface_stats_header.ty, TY);
-                } else {
-                    assert!(false, "failed to parse interface_stats_header");
-                }
-            }
-            IResult::Incomplete(e) => {
-                println!("Incomplete: {:?}", e);
-                assert!(false, "failed to parse interface_stats header");
-            }
-            IResult::Error(e) => {
-                println!("Error: {:?}", e);
-                assert!(false, "failed to parse interface_stats header");
-            }
+            assert_eq!(left, b"");
+            assert_eq!(interface_stats_header.ty, TY);
+        } else {
+            assert!(false, "failed to parse interface_stats_header");
         }
     }
 }

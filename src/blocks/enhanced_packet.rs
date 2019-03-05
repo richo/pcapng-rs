@@ -73,13 +73,12 @@ named!(enhanced_packet_body<&[u8],EnhancedPacket>,
 pub fn parse(blk: RawBlock) -> IResult<&[u8], EnhancedPacket> {
     match enhanced_packet_body(blk.body) {
         // FIXME(richo) actually do something with the leftover bytes
-        IResult::Done(left, mut block) => {
+        Ok((left, mut block)) => {
             block.block_length = blk.block_length;
             block.check_length = blk.check_length;
-            IResult::Done(left, block)
+            Ok((left, block))
         }
-        IResult::Error(e) => IResult::Error(e),
-        IResult::Incomplete(e) => IResult::Incomplete(e),
+        Err(e) => Err(e)
     }
 }
 

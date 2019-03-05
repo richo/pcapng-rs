@@ -81,13 +81,12 @@ pub fn parse(blk: RawBlock) -> IResult<&[u8], SectionHeader> {
     // dealing with slices by this point to our advantage
     match section_header_body(blk.body) {
         // FIXME(richo) actually do something with the leftover bytes
-        IResult::Done(left, mut block) => {
+        Ok((left, mut block)) => {
             block.block_length = blk.block_length;
             block.check_length = blk.check_length;
-            IResult::Done(left, block)
-        }
-        IResult::Error(e) => IResult::Error(e),
-        IResult::Incomplete(e) => IResult::Incomplete(e),
+            Ok((left, block))
+        },
+        Err(e) => Err(e),
     }
 }
 
@@ -102,23 +101,16 @@ mod tests {
     #[test]
     fn test_parse_section_header() {
         let input = b"\n\r\r\n\x1c\x00\x00\x00M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x1c\x00\x00\x00";
-        match parse_block(input) {
-            IResult::Done(_, block) => {
-                if let IResult::Done(left, section_header) = parse(block) {
+        let (_, block) = parse_block(input).expect("parse_block");
+        let (left, section_header) = parse(block).expect("parse");
 
-                    // Ignored because we do not currently parse the whole block
-                    assert_eq!(left, b"");
-                    assert_eq!(section_header.ty, BlockType::SectionHeader as u32);
-                    assert_eq!(section_header.block_length, 28);
-                    assert_eq!(section_header.magic, 0x1A2B3C4D);
-                    assert_eq!(section_header.section_length, SectionLength::Unspecified);
-                    assert!(section_header.options.is_none());
-                    assert_eq!(section_header.check_length, 28);
-                }
-            }
-            _ => {
-                assert!(false);
-            }
-        }
+            // Ignored because we do not currently parse the whole block
+            assert_eq!(left, b"");
+            assert_eq!(section_header.ty, BlockType::SectionHeader as u32);
+            assert_eq!(section_header.block_length, 28);
+            assert_eq!(section_header.magic, 0x1A2B3C4D);
+            assert_eq!(section_header.section_length, SectionLength::Unspecified);
+            assert!(section_header.options.is_none());
+            assert_eq!(section_header.check_length, 28);
     }
 }

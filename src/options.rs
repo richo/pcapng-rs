@@ -73,7 +73,7 @@ use nom::IResult;
 fn test_parse_options() {
     let input = b"\x12\x42\x08\x00asdfasdf\x00\x00\x00\x00";
     match parse_options(input) {
-        IResult::Done(left, opts) => {
+        Ok((left, opts)) => {
             assert_eq!(left, b"");
             assert_eq!(opts.options.len(), 2);
             let o = &opts.options[0];
@@ -94,7 +94,7 @@ fn test_multiple_options() {
                 \x6f\x77\x73\x20\x58\x50\x00\x00\x04\x00\x0c\x00\x54\x65\x73\x74\
                 \x30\x30\x34\x2e\x65\x78\x65\x00\x00\x00\x00\x00";
     match parse_options(input) {
-        IResult::Done(left, opts) => {
+        Ok((left, opts)) => {
             assert_eq!(left, b"");
             assert_eq!(opts.options.len(), 3);
 
